@@ -19,9 +19,13 @@ public class ENCRYPT {
     private static KeyPair myRSAKeyPair;
     private static Key pbKey ;
     private static Key pvKey ;
+    private byte[] salt;
     private static byte[] cipherTextRSA;
     private static byte[] plainTextRSA;
-    public ENCRYPT() throws NoSuchPaddingException, NoSuchAlgorithmException, ShortBufferException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private final int iteration_count;
+    private final int key_size;
+    private static  SecretKeyFactory keyFactory;
+    public ENCRYPT(char[] password) throws NoSuchPaddingException, NoSuchAlgorithmException, ShortBufferException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         keyBytes=new byte[16];
         myPRNG = new SecureRandom();
         myKey= new SecretKeySpec(keyBytes,"AES");
@@ -38,6 +42,11 @@ public class ENCRYPT {
         cipherTextAES =new byte[16];
         plainTextRSA = new byte[16];
         cipherTextRSA =new byte[16];
+        salt = new byte[16];
+        iteration_count = 50000;
+        key_size = 128;
+        myPRNG.nextBytes(salt);
+        keyFactory =SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         cLength =myAES.update(plaintextAES, 0, plaintextAES.length, cipherTextAES,0);
         cLength += myAES.doFinal(cipherTextAES, cLength);
     }
