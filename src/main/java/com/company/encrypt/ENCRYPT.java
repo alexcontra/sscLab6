@@ -1,8 +1,10 @@
 package com.company.encrypt;
 
 import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 
 public class ENCRYPT {
     private static byte[] keyBytes ;
@@ -25,6 +27,8 @@ public class ENCRYPT {
     private final int iteration_count;
     private final int key_size;
     private static  SecretKeyFactory keyFactory;
+    private PBEKeySpec pbekSpec;
+    private SecretKey myAESPBKey;
     public ENCRYPT(char[] password) throws NoSuchPaddingException, NoSuchAlgorithmException, ShortBufferException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         keyBytes=new byte[16];
         myPRNG = new SecureRandom();
@@ -46,9 +50,14 @@ public class ENCRYPT {
         iteration_count = 50000;
         key_size = 128;
         myPRNG.nextBytes(salt);
+        pbekSpec = new PBEKeySpec(password, salt, iteration_count, key_size);
         keyFactory =SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         cLength =myAES.update(plaintextAES, 0, plaintextAES.length, cipherTextAES,0);
         cLength += myAES.doFinal(cipherTextAES, cLength);
+    }
+    public void generateDES_KEY() throws InvalidKeySpecException {
+        myAESPBKey = new SecretKeySpec(keyFactory.generateSecret(pbekSpec).getEncoded(), "DES");
+        System.out.println("DES key: " + javax.xml.bind.DatatypeConverter.printHexBinary(myAESPBKey.getEncoded()));
     }
     public  void encryptAES(){
         System.out.println("ENCRYPTING AES!");
